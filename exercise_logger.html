@@ -38,6 +38,22 @@
                 <svg class="w-6 h-6 mr-2 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 Log Exercise
             </h2>
->
+	    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <select id="exerciseSelect" onchange="fillExerciseDetails()" class="p-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white text-gray-700">
+                    <option value="" selected>Custom Exercise</option>
+                    <option value="Walking">Walking</option>
+                    <option value="Running">Running</option>
+                    <option value="Cycling">Cycling</option>
+                    <option value="Swimming">Swimming</option>
+                    <option value="Yoga">Yoga</option>
+                    <option value="Weight Lifting">Weight Lifting</option>
+                    <option value="Jump Rope">Jump Rope</option>
+                </select>
+                <input type="text" id="exerciseName" placeholder="Exercise Name" class="p-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white text-gray-700">
+                <input type="number" id="exerciseDuration" placeholder="Duration (minutes)" oninput="fillExerciseDetails()" class="p-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white text-gray-700">
+                <input type="number" id="exerciseCalories" placeholder="Calories Burned" class="p-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white text-gray-700">
+                <input type="date" id="exerciseDate" class="p-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white text-gray-700">
+            </div>
+
 
 
