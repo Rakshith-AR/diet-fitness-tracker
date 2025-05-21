@@ -64,4 +64,34 @@ body {
                         <tr class="bg-teal-100 text-gray-700">
                             <th class="border border-gray-200 p-3 text-left">Date</th>
                             <th class="border border-gray-200 p-3 text-left">Food</th>
-                            <th class="border border-gray-200 p-3 text-left">Calories</th>
+                            <th class="border border-gray-200 p-3 text-left">Calories</th> <th class="border border-gray-200 p-3 text-left">Protein (g)</th>
+                            <th class="border border-gray-200 p-3 text-left">Carbs (g)</th>
+                            <th class="border border-gray-200 p-3 text-left">Fats (g)</th>
+                            <th class="border border-gray-200 p-3 text-left">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="foodTableBody" class="text-gray-600"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log("Food Logger Module Initialized");
+
+        const foodData = {
+            "Apple": { calories: 95, protein: 0.5, carbs: 25, fats: 0.2 },
+            "Banana": { calories: 120, protein: 1.2, carbs: 30, fats: 0.3 },
+            "Rice": { calories: 200, protein: 4, carbs: 45, fats: 0.5 },
+            "Bread": { calories: 80, protein: 3, carbs: 15, fats: 1 },
+            "Egg": { calories: 70, protein: 6, carbs: 1, fats: 5 },
+            "Chicken": { calories: 165, protein: 31, carbs: 0, fats: 3.6 },
+            "Milk": { calories: 120, protein: 8, carbs: 12, fats: 5 },
+            "Orange": { calories: 85, protein: 1, carbs: 21, fats: 0.2 }
+        };
+
+        class FoodLogger {
+            constructor() {
+                this.foodLogs = [];
+                this.loadFoodLogs();
+
