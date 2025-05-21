@@ -312,7 +312,145 @@
                 }
             }
         }
+ // Team Member 2: Food Intake Logging
+        class FoodLogger {
+            constructor() {
+                this.foodLogs = [];
+                this.loadFoodLogs();
+                console.log("FoodLogger initialized");
+            }
 
+            validateFood(foodName, calories, protein, carbs, fats, date) {
+                let errors = [];
+                if (!foodName || foodName.length < 2) {
+                    errors.push("Food name must be at least 2 characters.");
+                }
+                if (!calories || calories < 0 || calories > 2000) {
+                    errors.push("Calories must be between 0 and 2000.");
+                }
+                if (protein && (protein < 0 || protein > 500)) {
+                    errors.push("Protein must be between 0 and 500 grams.");
+                }
+                if (carbs && (carbs < 0 || carbs > 500)) {
+                    errors.push("Carbs must be between 0 and 500 grams.");
+                }
+                if (fats && (fats < 0 || fats > 500)) {
+                    errors.push("Fats must be between 0 and 500 grams.");
+                }
+                if (!date) {
+                    errors.push("Date is required.");
+                }
+                return errors;
+            }
+
+            logFood(foodName, calories, protein, carbs, fats, date) {
+                const errors = this.validateFood(foodName, calories, protein, carbs, fats, date);
+                if (errors.length > 0) {
+                    document.getElementById("foodError").innerText = errors.join(" ");
+                    return false;
+                }
+                try {
+                    const foodEntry = {
+                        id: Date.now(),
+                        foodName,
+                        calories: parseInt(calories),
+                        protein: protein ? parseFloat(protein) : 0,
+                        carbs: carbs ? parseFloat(carbs) : 0,
+                        fats: fats ? parseFloat(fats) : 0,
+                        date
+                    };
+                    this.foodLogs.push(foodEntry);
+                    localStorage.setItem("foodLogs", JSON.stringify(this.foodLogs));
+                    this.displayFoodLogs();
+                    document.getElementById("foodError").innerText = "";
+                    return true;
+                } catch (e) {
+                    console.error("Food logging error:", e);
+                    document.getElementById("foodError").innerText = "Failed to log food. Check browser settings.";
+                    return false;
+                }
+            }
+
+            deleteFoodLog(id) {
+                try {
+                    this.foodLogs = this.foodLogs.filter(log => log.id !== id);
+                    localStorage.setItem("foodLogs", JSON.stringify(this.foodLogs));
+                    this.displayFoodLogs();
+                } catch (e) {
+                    console.error("Food delete error:", e);
+                    document.getElementById("foodError").innerText = "Failed to delete food log.";
+                }
+            }
+
+            loadFoodLogs() {
+                try {
+                    const logs = localStorage.getItem("foodLogs");
+                    if (logs) {
+                        const parsedLogs = JSON.parse(logs);
+                        if (Array.isArray(parsedLogs)) {
+                            this.foodLogs = parsedLogs.map(log => ({
+                                id: log.id || Date.now(),
+                                foodName: log.foodName || "Unknown",
+                                calories: parseInt(log.calories) || 0,
+                                protein: parseFloat(log.protein) || 0,
+                                carbs: parseFloat(log.carbs) || 0,
+                                fats: parseFloat(log.fats) || 0,
+                                date: log.date || new Date().toISOString().split("T")[0]
+                            }));
+                            localStorage.setItem("foodLogs", JSON.stringify(this.foodLogs));
+                            this.displayFoodLogs();
+                        } else {
+                            throw new Error("Invalid food logs format");
+                        }
+                    }
+                } catch (e) {
+                    console.error("Food logs load error:", e);
+                    document.getElementById("foodError").innerText = "Failed to load food logs. Data cleared to prevent errors.";
+                    localStorage.removeItem("foodLogs");
+                    this.foodLogs = [];
+                    this.displayFoodLogs();
+                }
+            }
+
+            displayFoodLogs() {
+                const tableBody = document.getElementById("foodTableBody");
+                tableBody.innerHTML = "";
+                this.foodLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+                this.foodLogs.forEach(log => {
+                    const row = document.createElement("tr");
+                    row.className = "odd:bg-gray-100";
+                    row.innerHTML = `
+                        <td class="border border-gray-200 p-3">${log.date}</td>
+                        <td class="border border-gray-200 p-3">${log.foodName}</td>
+                        <td class="border border-gray-200 p-3">${log.calories}</td>
+                        <td class="border border-gray-200 p-3">${log.protein}</td>
+                        <td class="border border-gray-200 p-3">${log.carbs}</td>
+                        <td class="border border-gray-200 p-3">${log.fats}</td>
+                        <td class="border border-gray-200 p-3"><button class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-all duration-300" onclick="foodLogger.deleteFoodLog(${log.id})">Delete</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            getCaloriesForDate(date) {
+                return this.foodLogs
+                    .filter(log => log.date === date)
+                    .reduce((total, log) => total + log.calories, 0);
+            }
+
+            getMacrosForDate(date) {
+                return this.foodLogs
+                    .filter(log => log.date === date)
+                    .reduce(
+                        (totals, log) => ({
+                            protein: totals.protein + (log.protein || 0),
+                            carbs: totals.carbs + (log.carbs || 0),
+                            fats: totals.fats + (log.fats || 0)
+                        }),
+                        { protein: 0, carbs: 0, fats: 0 }
+                    );
+            }
+        }
         // Team Member 3: Exercise Logging
         class ExerciseLogger {
             constructor() {
