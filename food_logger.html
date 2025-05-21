@@ -133,4 +133,34 @@ body {
                         protein: protein ? parseFloat(protein) : 0,
                         carbs: carbs ? parseFloat(carbs) : 0,
                         fats: fats ? parseFloat(fats) : 0,
-                        date
+                        date};
+                    this.foodLogs.push(foodEntry);
+                    localStorage.setItem("foodLogs", JSON.stringify(this.foodLogs));
+                    this.displayFoodLogs();
+                    document.getElementById("foodError").innerText = "";
+                    return true;
+                } catch (e) {
+                    console.error("Food logging error:", e);
+                    document.getElementById("foodError").innerText = "Failed to log food. Check browser settings.";
+                    return false;
+                }
+            }
+
+            deleteFoodLog(id) {
+                try {
+                    this.foodLogs = this.foodLogs.filter(log => log.id !== id);
+                    localStorage.setItem("foodLogs", JSON.stringify(this.foodLogs));
+                    this.displayFoodLogs();
+                } catch (e) {
+                    console.error("Food delete error:", e);
+                    document.getElementById("foodError").innerText = "Failed to delete food log.";
+                }
+            }
+
+            loadFoodLogs() {
+                try {
+                    const logs = localStorage.getItem("foodLogs");
+                    if (logs) {
+                        const parsedLogs = JSON.parse(logs);
+                        if (Array.isArray(parsedLogs)) {
+
