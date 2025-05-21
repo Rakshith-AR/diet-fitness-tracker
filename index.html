@@ -147,4 +147,168 @@
                 </table>
             </div>
         </div>
+	 <!-- Progress Section -->
+        <div class="mb-12 p-6 bg-gray-50 rounded-xl shadow-lg animate-fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Progress Report
+            </h2>
+            <button onclick="showProgress()" class="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-6 py-3 rounded-md hover:bg-teal-600">Generate Report</button>
+            <div id="progressReport" class="mt-6 text-gray-700 leading-relaxed"></div>
+            <canvas id="calorieChart" class="mt-6"></canvas>
+        </div>
+    </div>
 
+    <script>
+        console.log("Diet and Fitness Tracker JavaScript initialized");
+
+        // Predefined food data
+        const foodData = {
+            "Apple": { calories: 95, protein: 0.5, carbs: 25, fats: 0.2 },
+            "Banana": { calories: 120, protein: 1.2, carbs: 30, fats: 0.3 },
+            "Rice": { calories: 200, protein: 4, carbs: 45, fats: 0.5 },
+            "Bread": { calories: 80, protein: 3, carbs: 15, fats: 1 },
+            "Egg": { calories: 70, protein: 6, carbs: 1, fats: 5 },
+            "Chicken": { calories: 165, protein: 31, carbs: 0, fats: 3.6 },
+            "Milk": { calories: 120, protein: 8, carbs: 12, fats: 5 },
+            "Orange": { calories: 85, protein: 1, carbs: 21, fats: 0.2 }
+        };
+
+        // Predefined exercise data (calories per minute)
+        const exerciseData = {
+            "Walking": 5,
+            "Running": 10,
+            "Cycling": 8,
+            "Swimming": 9,
+            "Yoga": 4,
+            "Weight Lifting": 6,
+            "Jump Rope": 12
+        };
+
+        // Team Member 1: User Profile Management
+        class UserProfile {
+            constructor() {
+                this.profile = null;
+                this.loadProfile();
+                console.log("UserProfile initialized");
+            }
+
+            validateProfile(username, age, height, weight, gender, calorieGoal) {
+                let errors = [];
+                if (!username || username.length < 3) {
+                    errors.push("Username must be at least 3 characters.");
+                }
+                if (!age || age < 18 || age > 120) {
+                    errors.push("Age must be between 18 and 120.");
+                }
+                if (!height || height < 100 || height > 250) {
+                    errors.push("Height must be between 100 and 250 cm.");
+                }
+                if (!weight || weight < 30 || weight > 300) {
+                    errors.push("Weight must be between 30 and 300 kg.");
+                }
+                if (!gender) {
+                    errors.push("Gender is required.");
+                }
+                if (!calorieGoal || calorieGoal < 1000 || calorieGoal > 5000) {
+                    errors.push("Calorie goal must be between 1000 and 5000.");
+                }
+                return errors;
+            }
+
+            calculateBMI(height, weight) {
+                try {
+                    const heightInMeters = height / 100;
+                    const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(2);
+                    return isNaN(bmi) ? "N/A" : bmi;
+                } catch (e) {
+                    console.error("BMI calculation error:", e);
+                    return "N/A";
+                }
+            }
+
+            saveProfile(username, age, height, weight, gender, calorieGoal) {
+                const errors = this.validateProfile(username, age, height, weight, gender, calorieGoal);
+                if (errors.length > 0) {
+                    document.getElementById("profileError").innerText = errors.join(" ");
+                    return false;
+                }
+                try {
+                    this.profile = {
+                        username,
+                        age: parseInt(age),
+                        height: parseFloat(height),
+                        weight: parseFloat(weight),
+                        gender,
+                        calorieGoal: parseInt(calorieGoal),
+                        bmi: this.calculateBMI(height, weight)
+                    };
+                    localStorage.setItem("userProfile", JSON.stringify(this.profile));
+                    this.displayProfile();
+                    document.getElementById("profileError").innerText = "";
+                    return true;
+                } catch (e) {
+                    console.error("Profile save error:", e);
+                    document.getElementById("profileError").innerText = "Failed to save profile. Check browser settings.";
+                    return false;
+                }
+            }
+
+            loadProfile() {
+                try {
+                    const profileData = localStorage.getItem("userProfile");
+                    if (profileData) {
+                        this.profile = JSON.parse(profileData);
+                        this.displayProfile();
+                    }
+                } catch (e) {
+                    console.error("Profile load error:", e);
+                    document.getElementById("profileError").innerText = "Failed to load profile. Clear browser data and try again.";
+                }
+            }
+
+            displayProfile() {
+                const displayDiv = document.getElementById("profileDisplay");
+                if (this.profile) {
+                    displayDiv.innerHTML = `
+                        <p><strong>Username:</strong> ${this.profile.username}</p>
+                        <p><strong>Age:</strong> ${this.profile.age}</p>
+                        <p><strong>Height:</strong> ${this.profile.height} cm</p>
+                        <p><strong>Weight:</strong> ${this.profile.weight} kg</p>
+                        <p><strong>Gender:</strong> ${this.profile.gender}</p>
+                        <p><strong>BMI:</strong> ${this.profile.bmi}</p>
+                        <p><strong>Daily Calorie Goal:</strong> ${this.profile.calorieGoal}</p>
+                    `;
+                } else {
+                    displayDiv.innerHTML = "<p>No profile data available.</p>";
+                }
+            }
+
+            clearAllData() {
+                try {
+                    if (confirm("Are you sure you want to clear all data? This cannot be undone.")) {
+                        localStorage.removeItem("userProfile");
+                        localStorage.removeItem("foodLogs");
+                        localStorage.removeItem("exerciseLogs");
+                        this.profile = null;
+                        this.displayProfile();
+                        if (typeof foodLogger !== "undefined") {
+                            foodLogger.foodLogs = [];
+                            foodLogger.displayFoodLogs();
+                        }
+                        if (typeof exerciseLogger !== "undefined") {
+                            exerciseLogger.exerciseLogs = [];
+                            exerciseLogger.displayExerciseLogs();
+                        }
+                        if (typeof progressTracker !== "undefined" && progressTracker.chart) {
+                            progressTracker.chart.destroy();
+                            document.getElementById("progressReport").innerHTML = "";
+                        }
+                        document.getElementById("profileError").innerText = "All data cleared.";
+                    }
+                } catch (e) {
+                    console.error("Clear data error:", e);
+                    document.getElementById("profileError").innerText = "Failed to clear data.";
+                }
+            }
+        }
