@@ -163,4 +163,85 @@ body {
                     if (logs) {
                         const parsedLogs = JSON.parse(logs);
                         if (Array.isArray(parsedLogs)) {
+this.foodLogs = parsedLogs.map(log => ({
+                                id: log.id || Date.now(),
+                                foodName: log.foodName || "Unknown",
+                                calories: parseInt(log.calories) || 0,
+                                protein: parseFloat(log.protein) || 0,
+                                carbs: parseFloat(log.carbs) || 0,
+                                fats: parseFloat(log.fats) || 0,
+                                date: log.date || new Date().toISOString().split("T")[0]
+                            }));
+                            localStorage.setItem("foodLogs", JSON.stringify(this.foodLogs));
+                            this.displayFoodLogs();
+                        } else {
+                            throw new Error("Invalid food logs format");
+                        }
+                    }
+                } catch (e) {
+                    console.error("Food logs load error:", e);
+                    document.getElementById("foodError").innerText = "Failed to load food logs. Data cleared to prevent errors.";
+                    localStorage.removeItem("foodLogs");
+                    this.foodLogs = [];
+                    this.displayFoodLogs();
+                }
+            }
 
+            displayFoodLogs() {
+                const tableBody = document.getElementById("foodTableBody");
+                tableBody.innerHTML = "";
+                this.foodLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+                this.foodLogs.forEach(log => {
+                    const row = document.createElement("tr");
+                    row.className = "odd:bg-gray-100";
+                    row.innerHTML = `
+                        <td class="border border-gray-200 p-3">${log.date}</td>
+                        <td class="border border-gray-200 p-3">${log.foodName}</td>
+                        <td class="border border-gray-200 p-3">${log.calories}</td>
+                        <td class="border border-gray-200 p-3">${log.protein}</td>
+                        <td class="border border-gray-200 p-3">${log.carbs}</td>
+                        <td class="border border-gray-200 p-3">${log.fats}</td>
+                        <td class="border border-gray-200 p-3"><button class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-all duration-300" onclick="foodLogger.deleteFoodLog(${log.id})">Delete</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        const foodLogger = new FoodLogger();
+
+        function fillFoodDetails() {
+            const foodSelect = document.getElementById("foodSelect").value;
+            const foodNameInput = document.getElementById("foodName");
+            const caloriesInput = document.getElementById("foodCalories");
+            const proteinInput = document.getElementById("foodProtein");
+            const carbsInput = document.getElementById("foodCarbs");
+            const fatsInput = document.getElementById("foodFats");
+
+            if (foodSelect && foodData[foodSelect]) {
+                foodNameInput.value = foodSelect;
+                caloriesInput.value = foodData[foodSelect].calories;
+                proteinInput.value = foodData[foodSelect].protein;
+                carbsInput.value = foodData[foodSelect].carbs;
+                fatsInput.value = foodData[foodSelect].fats;
+            } else {
+                foodNameInput.value = "";
+                caloriesInput.value = "";
+                proteinInput.value = "";
+                carbsInput.value = "";
+                fatsInput.value = "";
+            }
+        }
+
+        function logFood() {
+            const foodName = document.getElementById("foodName").value.trim();
+            const calories = document.getElementById("foodCalories").value;
+            const protein = document.getElementById("foodProtein").value;
+            const carbs = document.getElementById("foodCarbs").value;
+            const fats = document.getElementById("foodFats").value;
+            const date = document.getElementById("foodDate").value;
+            foodLogger.logFood(foodName, calories, protein, carbs, fats, date);
+        }
+    </script>
+</body>
+</html> member 2 Niharika food logger
