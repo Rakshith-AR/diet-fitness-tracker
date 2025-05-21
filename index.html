@@ -312,3 +312,104 @@
                 }
             }
         }
+
+        // Team Member 3: Exercise Logging
+        class ExerciseLogger {
+            constructor() {
+                this.exerciseLogs = [];
+                this.loadExerciseLogs();
+                console.log("ExerciseLogger initialized");
+            }
+
+            validateExercise(exerciseName, duration, calories, date) {
+                let errors = [];
+                if (!exerciseName || exerciseName.length < 2) {
+                    errors.push("Exercise name must be at least 2 characters.");
+                }
+                if (!duration || duration < 1 || duration > 300) {
+                    errors.push("Duration must be between 1 and 300 minutes.");
+                }
+                if (!calories || calories < 0 || calories > 2000) {
+                    errors.push("Calories burned must be between 0 and 2000.");
+                }
+                if (!date) {
+                    errors.push("Date is required.");
+                }
+                return errors;
+            }
+
+            logExercise(exerciseName, duration, calories, date) {
+                const errors = this.validateExercise(exerciseName, duration, calories, date);
+                if (errors.length > 0) {
+                    document.getElementById("exerciseError").innerText = errors.join(" ");
+                    return false;
+                }
+                try {
+                    const exerciseEntry = {
+                        id: Date.now(),
+                        exerciseName,
+                        duration: parseInt(duration),
+                        calories: parseInt(calories),
+                        date
+                    };
+                    this.exerciseLogs.push(exerciseEntry);
+                    localStorage.setItem("exerciseLogs", JSON.stringify(this.exerciseLogs));
+                    this.displayExerciseLogs();
+                    document.getElementById("exerciseError").innerText = "";
+                    return true;
+                } catch (e) {
+                    console.error("Exercise logging error:", e);
+                    document.getElementById("exerciseError").innerText = "Failed to log exercise. Check browser settings.";
+                    return false;
+                }
+            }
+
+            deleteExerciseLog(id) {
+                try {
+                    this.exerciseLogs = this.exerciseLogs.filter(log => log.id !== id);
+                    localStorage.setItem("exerciseLogs", JSON.stringify(this.exerciseLogs));
+                    this.displayExerciseLogs();
+                } catch (e) {
+                    console.error("Exercise delete error:", e);
+                    document.getElementById("exerciseError").innerText = "Failed to delete exercise log.";
+                }
+            }
+
+            loadExerciseLogs() {
+                try {
+                    const logs = localStorage.getItem("exerciseLogs");
+                    if (logs) {
+                        this.exerciseLogs = JSON.parse(logs);
+                        this.displayExerciseLogs();
+                    }
+                } catch (e) {
+                    console.error("Exercise logs load error:", e);
+                    document.getElementById("exerciseError").innerText = "Failed to load exercise logs. Clear browser data and try again.";
+                }
+            }
+
+            displayExerciseLogs() {
+                const tableBody = document.getElementById("exerciseTableBody");
+                tableBody.innerHTML = "";
+                this.exerciseLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+                this.exerciseLogs.forEach(log => {
+                    const row = document.createElement("tr");
+                    row.className = "odd:bg-gray-100";
+                    row.innerHTML = `
+                        <td class="border border-gray-200 p-3">${log.date}</td>
+                        <td class="border border-gray-200 p-3">${log.exerciseName}</td>
+                        <td class="border border-gray-200 p-3">${log.duration}</td>
+                        <td class="border border-gray-200 p-3">${log.calories}</td>
+                        <td class="border border-gray-200 p-3"><button class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-all duration-300" onclick="exerciseLogger.deleteExerciseLog(${log.id})">Delete</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            getCaloriesBurnedForDate(date) {
+                return this.exerciseLogs
+                    .filter(log => log.date === date)
+                    .reduce((total, log) => total + log.calories, 0);
+            }
+        }
+
