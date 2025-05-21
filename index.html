@@ -550,4 +550,218 @@
                     .reduce((total, log) => total + log.calories, 0);
             }
         }
+// Team Member 4: Progress Visualization
+        class ProgressTracker {
+            constructor() {
+                this.chart = null;
+                console.log("ProgressTracker initialized");
+            }
 
+            generateReport() {
+                try {
+                    const today = new Date().toISOString().split("T")[0];
+                    const foodCalories = foodLogger.getCaloriesForDate(today);
+                    const exerciseCalories = exerciseLogger.getCaloriesBurnedForDate(today);
+                    const netCalories = foodCalories - exerciseCalories;
+                    const calorieGoal = userProfile.profile ? userProfile.profile.calorieGoal : 0;
+                    const macros = foodLogger.getMacrosForDate(today);
+
+                    let report = `<h3 class="text-xl font-semibold text-gray-800">Daily Progress Report (${today})</h3>`;
+                    report += `<p class="mt-2"><strong>Calories Consumed:</strong> ${foodCalories}</p>`;
+                    report += `<p><strong>Calories Burned:</strong> ${exerciseCalories}</p>`;
+                    report += `<p><strong>Net Calories:</strong> ${netCalories}</p>`;
+                    if (calorieGoal > 0) {
+                        report += `<p><strong>Calorie Goal:</strong> ${calorieGoal}</p>`;
+                        report += `<p><strong>Goal Status:</strong> ${netCalories <= calorieGoal ? "Met" : "Not Met"} (${Math.abs(netCalories - calorieGoal)} ${netCalories > calorieGoal ? "over" : "under"})</p>`;
+                    }
+                    if (userProfile.profile && userProfile.profile.bmi !== "N/A") {
+                        report += `<p><strong>BMI:</strong> ${userProfile.profile.bmi}</p>`;
+                    }
+                    report += `<h4 class="text-lg font-medium mt-4 text-gray-800">Macronutrient Breakdown</h4>`;
+                    report += `<p><strong>Protein:</strong> ${macros.protein.toFixed(1)} g</p>`;
+                    report += `<p><strong>Carbs:</strong> ${macros.carbs.toFixed(1)} g</p>`;
+                    report += `<p><strong>Fats:</strong> ${macros.fats.toFixed(1)} g</p>`;
+                    return report;
+                } catch (e) {
+                    console.error("Report generation error:", e);
+                    return "<p class='text-red-400'>Error generating report.</p>";
+                }
+            }
+
+            generateChart() {
+                try {
+                    const ctx = document.getElementById("calorieChart").getContext("2d");
+                    const labels = [];
+                    const foodData = [];
+                    const exerciseData = [];
+                    const netData = [];
+
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date();
+                        date.setDate(date.getDate() - i);
+                        const dateString = date.toISOString().split("T")[0];
+                        labels.push(dateString);
+                        foodData.push(foodLogger.getCaloriesForDate(dateString));
+                        exerciseData.push(exerciseLogger.getCaloriesBurnedForDate(dateString));
+                        netData.push(foodData[foodData.length - 1] - exerciseData[exerciseData.length - 1]);
+                    }
+
+                    if (this.chart) {
+                        this.chart.destroy();
+                    }
+
+                    this.chart = new Chart(ctx, {
+                        type: "bar",
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: "Calories Consumed",
+                                    data: foodData,
+                                    backgroundColor: "rgba(75, 192, 192, 0.5)",
+                                    borderColor: "rgba(75, 192, 192, 1)",
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: "Calories Burned",
+                                    data: exerciseData,
+                                    backgroundColor: "rgba(255, 99, 132, 0.5)",
+                                    borderColor: "rgba(255, 99, 132, 1)",
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: "Net Calories",
+                                    data: netData,
+                                    backgroundColor: "rgba(54, 162, 235, 0.5)",
+                                    borderColor: "rgba(54, 162, 235, 1)",
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: "Calories",
+                                        font: { family: 'Poppins', size: 14, weight: '600' }
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: "Date",
+                                        font: { family: 'Poppins', size: 14, weight: '600' }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    position: "top",
+                                    labels: { font: { family: 'Poppins', size: 12 } }
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Calorie Intake and Expenditure (Last 7 Days)",
+                                    font: { family: 'Poppins', size: 16, weight: '600' }
+                                }
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error("Chart generation error:", e);
+                    document.getElementById("progressReport").innerHTML += "<p class='text-red-400'>Error generating chart. Ensure Chart.js is loaded.</p>";
+                }
+            }
+
+            showProgress() {
+                const reportDiv = document.getElementById("progressReport");
+                reportDiv.innerHTML = this.generateReport();
+                this.generateChart();
+            }
+        }
+
+        // Initialize all modules
+        const userProfile = new UserProfile();
+        const foodLogger = new FoodLogger();
+        const exerciseLogger = new ExerciseLogger();
+        const progressTracker = new ProgressTracker();
+
+        // Button handlers
+        function saveProfile() {
+            const username = document.getElementById("username").value.trim();
+            const age = document.getElementById("age").value;
+            const height = document.getElementById("height").value;
+            const weight = document.getElementById("weight").value;
+            const gender = document.getElementById("gender").value;
+            const calorieGoal = document.getElementById("calorieGoal").value;
+            userProfile.saveProfile(username, age, height, weight, gender, calorieGoal);
+        }
+
+        function clearAllData() {
+            userProfile.clearAllData();
+        }
+
+        function fillFoodDetails() {
+            const foodSelect = document.getElementById("foodSelect").value;
+            const foodNameInput = document.getElementById("foodName");
+            const caloriesInput = document.getElementById("foodCalories");
+            const proteinInput = document.getElementById("foodProtein");
+            const carbsInput = document.getElementById("foodCarbs");
+            const fatsInput = document.getElementById("foodFats");
+
+            if (foodSelect && foodData[foodSelect]) {
+                foodNameInput.value = foodSelect;
+                caloriesInput.value = foodData[foodSelect].calories;
+                proteinInput.value = foodData[foodSelect].protein;
+                carbsInput.value = foodData[foodSelect].carbs;
+                fatsInput.value = foodData[foodSelect].fats;
+            } else {
+                foodNameInput.value = "";
+                caloriesInput.value = "";
+                proteinInput.value = "";
+                carbsInput.value = "";
+                fatsInput.value = "";
+            }
+        }
+
+        function logFood() {
+            const foodName = document.getElementById("foodName").value.trim();
+            const calories = document.getElementById("foodCalories").value;
+            const protein = document.getElementById("foodProtein").value;
+            const carbs = document.getElementById("foodCarbs").value;
+            const fats = document.getElementById("foodFats").value;
+            const date = document.getElementById("foodDate").value;
+            foodLogger.logFood(foodName, calories, protein, carbs, fats, date);
+        }
+
+        function fillExerciseDetails() {
+            const exerciseSelect = document.getElementById("exerciseSelect").value;
+            const exerciseNameInput = document.getElementById("exerciseName");
+            const durationInput = document.getElementById("exerciseDuration").value;
+            const caloriesInput = document.getElementById("exerciseCalories");
+
+            if (exerciseSelect && exerciseData[exerciseSelect] && durationInput) {
+                exerciseNameInput.value = exerciseSelect;
+                caloriesInput.value = Math.round(exerciseData[exerciseSelect] * parseInt(durationInput));
+            } else {
+                exerciseNameInput.value = "";
+                caloriesInput.value = "";
+            }
+        }
+
+        function logExercise() {
+            const exerciseName = document.getElementById("exerciseName").value.trim();
+            const duration = document.getElementById("exerciseDuration").value;
+            const calories = document.getElementById("exerciseCalories").value;
+            const date = document.getElementById("exerciseDate").value;
+            exerciseLogger.logExercise(exerciseName, duration, calories, date);
+        }
+
+        function showProgress() {
+            progressTracker.showProgress();
+        }
+    </script>
+</body>
+</html>
