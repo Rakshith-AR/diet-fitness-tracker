@@ -72,4 +72,33 @@
                     const calorieGoal = userProfile.profile ? userProfile.profile.calorieGoal : 0;
                     const macros = foodLogger.getMacrosForDate(today);
 
+let report = <h3 class="text-xl font-semibold text-gray-800">Daily Progress Report (${today})</h3>;
+                    report += <p class="mt-2"><strong>Calories Consumed:</strong> ${foodCalories}</p>;
+                    report += <p><strong>Calories Burned:</strong> ${exerciseCalories}</p>;
+                    report += <p><strong>Net Calories:</strong> ${netCalories}</p>;
+                    if (calorieGoal > 0) {
+                        report += <p><strong>Calorie Goal:</strong> ${calorieGoal}</p>;
+                        report += <p><strong>Goal Status:</strong> ${netCalories <= calorieGoal ? "Met" : "Not Met"} (${Math.abs(netCalories - calorieGoal)} ${netCalories > calorieGoal ? "over" : "under"})</p>;
+                    }
+                    if (userProfile.profile && userProfile.profile.bmi !== "N/A") {
+                        report += <p><strong>BMI:</strong> ${userProfile.profile.bmi}</p>;
+                    }
+                    report += <h4 class="text-lg font-medium mt-4 text-gray-800">Macronutrient Breakdown</h4>;
+                    report += <p><strong>Protein:</strong> ${macros.protein.toFixed(1)} g</p>;
+                    report += <p><strong>Carbs:</strong> ${macros.carbs.toFixed(1)} g</p>;
+                    report += <p><strong>Fats:</strong> ${macros.fats.toFixed(1)} g</p>;
+                    return report;
+                } catch (e) {
+                    console.error("Report generation error:", e);
+                    return "<p class='text-red-400'>Error generating report.</p>";
+                }
+            }
+
+            generateChart() {
+                try {
+                    const ctx = document.getElementById("calorieChart").getContext("2d");
+                    const labels = [];
+                    const foodData = [];
+                    const exerciseData = [];
+                    const netData = [];
  
