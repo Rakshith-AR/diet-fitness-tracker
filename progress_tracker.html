@@ -101,4 +101,17 @@ let report = <h3 class="text-xl font-semibold text-gray-800">Daily Progress Repo
                     const foodData = [];
                     const exerciseData = [];
                     const netData = [];
+for (let i = 6; i >= 0; i--) {
+                        const date = new Date();
+                        date.setDate(date.getDate() - i);
+                        const dateString = date.toISOString().split("T")[0];
+                        labels.push(dateString);
+                        foodData.push(foodLogger.getCaloriesForDate(dateString));
+                        exerciseData.push(exerciseLogger.getCaloriesBurnedForDate(dateString));
+                        netData.push(foodData[foodData.length - 1] - exerciseData[exerciseData.length - 1]);
+                    }
+
+                    if (this.chart) {
+                        this.chart.destroy();
+                    }
  
