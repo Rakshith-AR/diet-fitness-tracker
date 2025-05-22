@@ -170,3 +170,30 @@
                 }
             }
         }
+	 if (foodSelect && foodData[foodSelect]) {
+                foodNameInput.value = foodSelect;
+                caloriesInput.value = foodData[foodSelect].calories;
+                proteinInput.value = foodData[foodSelect].protein;
+                carbsInput.value = foodData[foodSelect].carbs;
+                fatsInput.value = foodData[foodSelect].fats;
+            } else {
+                foodNameInput.value = "";
+                caloriesInput.value = "";
+                proteinInput.value = "";
+                carbsInput.value = "";
+                fatsInput.value = "";
+            }
+        }
+
+        function logFood() {
+            const foodName = document.getElementById("foodName").value.trim();
+            const calories = document.getElementById("foodCalories").value;
+            const protein = document.getElementById("foodProtein").value;
+            const carbs = document.getElementById("foodCarbs").value;
+            const fats = document.getElementById("foodFats").value;
+            const date = document.getElementById("foodDate").value;
+            foodLogger.logFood(foodName, calories, protein, carbs, fats, date);
+        }
+    </script>
+</body>
+</html>
