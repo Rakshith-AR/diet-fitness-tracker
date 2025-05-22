@@ -99,4 +99,42 @@
                     return "N/A";
                 }
             }
+ saveProfile(username, age, height, weight, gender, calorieGoal) {
+                const errors = this.validateProfile(username, age, height, weight, gender, calorieGoal);
+                if (errors.length > 0) {
+                    document.getElementById("profileError").innerText = errors.join(" ");
+                    return false;
+                }
+                try {
+                    this.profile = {
+                        username,
+                        age: parseInt(age),
+                        height: parseFloat(height),
+                        weight: parseFloat(weight),
+                        gender,
+                        calorieGoal: parseInt(calorieGoal),
+                        bmi: this.calculateBMI(height, weight)
+                    };
+                    localStorage.setItem("userProfile", JSON.stringify(this.profile));
+                    this.displayProfile();
+                    document.getElementById("profileError").innerText = "";
+                    return true;
+                } catch (e) {
+                    console.error("Profile save error:", e);
+                    document.getElementById("profileError").innerText = "Failed to save profile. Check browser settings.";
+                    return false;
+                }
+            }
 
+            loadProfile() {
+                try {
+                    const profileData = localStorage.getItem("userProfile");
+                    if (profileData) {
+                        this.profile = JSON.parse(profileData);
+                        this.displayProfile();
+                    }
+                } catch (e) {
+                    console.error("Profile load error:", e);
+                    document.getElementById("profileError").innerText = "Failed to load profile. Clear browser data and try again.";
+                }
+            }
