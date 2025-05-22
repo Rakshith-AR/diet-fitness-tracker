@@ -137,4 +137,21 @@
                     console.error("Profile load error:", e);
                     document.getElementById("profileError").innerText = "Failed to load profile. Clear browser data and try again.";
                 }
+            
+	   }
+		 displayProfile() {
+                const displayDiv = document.getElementById("profileDisplay");
+                if (this.profile) {
+                    displayDiv.innerHTML = `
+                        <p><strong>Username:</strong> ${this.profile.username}</p>
+                        <p><strong>Age:</strong> ${this.profile.age}</p>
+                        <p><strong>Height:</strong> ${this.profile.height} cm</p>
+                        <p><strong>Weight:</strong> ${this.profile.weight} kg</p>
+                        <p><strong>Gender:</strong> ${this.profile.gender}</p>
+                        <p><strong>BMI:</strong> ${this.profile.bmi}</p>
+                        <p><strong>Daily Calorie Goal:</strong> ${this.profile.calorieGoal}</p>
+                    `;
+                } else {
+                    displayDiv.innerHTML = "<p>No profile data available.</p>";
+                }
             }
