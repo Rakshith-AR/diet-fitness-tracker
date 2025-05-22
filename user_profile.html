@@ -155,3 +155,18 @@
                     displayDiv.innerHTML = "<p>No profile data available.</p>";
                 }
             }
+		
+            clearAllData() {
+                try {
+                    if (confirm("Are you sure you want to clear all data? This cannot be undone.")) {
+                        localStorage.removeItem("userProfile");
+                        this.profile = null;
+                        this.displayProfile();
+                        document.getElementById("profileError").innerText = "Profile data cleared.";
+                    }
+                } catch (e) {
+                    console.error("Clear data error:", e);
+                    document.getElementById("profileError").innerText = "Failed to clear data.";
+                }
+            }
+        }
