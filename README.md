@@ -74,7 +74,7 @@ Our team of four developers collaborated closely to build this application, with
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/your-repo/diet-fitness-tracker.git
+    git clone https://github.com/Sagar1643/diet-fitness-tracker.git
     ```
 2.  **Navigate to the Project Directory:**
     ```bash
